@@ -1,0 +1,90 @@
+#include <stdio.h>
+
+struct process
+{
+    int p_id;
+    int atime;
+    int btime;
+    int ctime;
+    int wtime;
+    int tat;
+    int pc;
+};
+
+int main()
+{
+    int n, i, minBT, index;
+
+    printf("Enter number of processes: ");
+    scanf("%d", &n);
+
+    struct process p[n];
+
+    for(int i = 0; i < n; i++)
+    {
+        printf("Enter Process ID, Arrival Time, Burst Time: ");
+        scanf("%d %d %d", &p[i].p_id, &p[i].atime, &p[i].btime);
+
+        p[i].pc = 0;
+    }
+
+    int current_time = 0;
+    int completed = 0;
+
+    while(completed < n)
+    {
+        int index = -1;
+        minBT = 9999;
+
+        for(int i = 0; i < n; i++)
+        {
+            if(p[i].atime <= current_time && p[i].pc == 0)
+            {
+                if(p[i].btime < minBT)
+                {
+                    minBT = p[i].btime;
+                    index = i;
+                }
+            }
+        }
+
+        if(index == -1)
+        {
+            current_time++;
+        }
+        else
+        {
+            current_time += p[index].btime;
+
+            p[index].ctime = current_time;
+            p[index].tat = p[index].ctime - p[index].atime;
+            p[index].wtime = p[index].tat - p[index].btime;
+
+            p[index].pc = 1;
+            completed++;
+        }
+    }
+
+    float total_wtime = 0, total_tat = 0;
+
+    printf("\nPID\tAT\tBT\tCT\tWT\tTAT\n");
+
+    for(int i = 0; i < n; i++)
+    {
+        printf("%d\t%d\t%d\t%d\t%d\t%d\n",
+               p[i].p_id,
+               p[i].atime,
+               p[i].btime,
+               p[i].ctime,
+               p[i].wtime,
+               p[i].tat);
+
+        total_wtime += p[i].wtime;
+        total_tat += p[i].tat;
+    }
+
+    printf("\nAverage Waiting Time = %.2f", total_wtime / n);
+    printf("\nAverage Turnaround Time = %.2f\n", total_tat / n);
+
+    return 0;
+}
